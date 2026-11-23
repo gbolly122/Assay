@@ -3,6 +3,8 @@ package eval
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"sort"
 	"strings"
 
@@ -223,35 +225,38 @@ func computeSampleSizes(labels []Label, matrix *ConfusionMatrix) {
 // If precision-recall is requested, it also emits those metrics with a caveat
 // about the small sample size.
 func (m *ConfusionMatrix) Print(precisionRecall bool) {
-	fmt.Printf("confusion matrix (sample size: %d subjects, corpus %s)\n", m.SampleSize, m.Version)
-	fmt.Println()
+	m.PrintTo(os.Stdout, precisionRecall)
+}
 
-	fmt.Println("=== severity level agreement ===")
-	fmt.Printf("%-12s %-10s %-12s %-14s %s\n", "severity", "agreed", "disagreed", "undetermined", "sample_size")
+// PrintTo writes the confusion matrix to w.
+func (m *ConfusionMatrix) PrintTo(w io.Writer, precisionRecall bool) {
+	fmt.Fprintf(w, "confusion matrix (sample size: %d subjects, corpus %s)\n", m.SampleSize, m.Version)
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "=== severity level agreement ===")
+	fmt.Fprintf(w, "%-12s %-10s %-12s %-14s %s\n", "severity", "agreed", "disagreed", "undetermined", "sample_size")
 	for _, row := range m.SeverityRows {
-		fmt.Printf("%-12s %-10d %-12d %-14d %d\n", row.Severity, row.Agreed, row.Disagreed, row.Undetermined, row.SampleSize)
+		fmt.Fprintf(w, "%-12s %-10d %-12d %-14d %d\n", row.Severity, row.Agreed, row.Disagreed, row.Undetermined, row.SampleSize)
 	}
-	fmt.Println()
-
-	fmt.Println("=== check agreement ===")
-	fmt.Printf("%-18s %-10s %-12s %-14s %s\n", "check", "agreed", "disagreed", "undetermined", "sample_size")
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "=== check agreement ===")
+	fmt.Fprintf(w, "%-18s %-10s %-12s %-14s %s\n", "check", "agreed", "disagreed", "undetermined", "sample_size")
 	for _, row := range m.CheckRows {
-		fmt.Printf("%-18s %-10d %-12d %-14d %d\n", row.Check, row.Agreed, row.Disagreed, row.Undetermined, row.SampleSize)
+		fmt.Fprintf(w, "%-18s %-10d %-12d %-14d %d\n", row.Check, row.Agreed, row.Disagreed, row.Undetermined, row.SampleSize)
 	}
-	fmt.Println()
+	fmt.Fprintln(w)
 
 	if precisionRecall {
-		m.printPrecisionRecallCaveat()
+		m.printPrecisionRecallCaveat(w)
 	}
 }
 
-func (m *ConfusionMatrix) printPrecisionRecallCaveat() {
-	fmt.Println("=== precision / recall ===")
-	fmt.Println("WARNING: precision and recall are computed from a sample of only")
-	fmt.Printf("%d subjects. This sample size cannot support statistically\n", m.SampleSize)
-	fmt.Println("meaningful rates. These figures are illustrative only and must not")
-	fmt.Println("be cited as evidence of classifier accuracy.")
-	fmt.Println()
+func (m *ConfusionMatrix) printPrecisionRecallCaveat(w io.Writer) {
+	fmt.Fprintln(w, "=== precision / recall ===")
+	fmt.Fprintln(w, "WARNING: precision and recall are computed from a sample of only")
+	fmt.Fprintf(w, "%d subjects. This sample size cannot support statistically\n", m.SampleSize)
+	fmt.Fprintln(w, "meaningful rates. These figures are illustrative only and must not")
+	fmt.Fprintln(w, "be cited as evidence of classifier accuracy.")
+	fmt.Fprintln(w)
 
 	totalAgreed := 0
 	totalDisagreed := 0
@@ -265,11 +270,11 @@ func (m *ConfusionMatrix) printPrecisionRecallCaveat() {
 
 	if totalClassified > 0 {
 		precision := float64(totalAgreed) / float64(totalClassified)
-		fmt.Printf("precision (severity): %.4f  (=%d/%d)\n", precision, totalAgreed, totalClassified)
+		fmt.Fprintf(w, "precision (severity): %.4f  (=%d/%d)\n", precision, totalAgreed, totalClassified)
 	}
 	if totalAgreed+totalUndetermined > 0 {
 		recall := float64(totalAgreed) / float64(totalAgreed+totalUndetermined)
-		fmt.Printf("recall (severity): %.4f  (=%d/%d)\n", recall, totalAgreed, totalAgreed+totalUndetermined)
+		fmt.Fprintf(w, "recall (severity): %.4f  (=%d/%d)\n", recall, totalAgreed, totalAgreed+totalUndetermined)
 	}
 }
 
