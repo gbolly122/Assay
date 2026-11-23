@@ -186,7 +186,7 @@ Horizon (`/accounts/{holder}`) and adds one finding, `check: "trustline"`
 | `is_clawback_enabled: true` | Evidence quoting both trustline flags, and mechanic `trustline_clawback_enabled` | `mechanics` gains `trustline_clawback_enabled` |
 | Not authorized (`is_authorized: false`) | Mechanic `trustline_deauthorized` | `mechanics` gains `trustline_deauthorized` |
 | Authorized, no clawback | Evidence quoting both flags, no mechanic; the reasoning explains CAP-0035 grandfathering | Unchanged |
-| The holder does not hold the asset | `undetermined: true`: there is no trustline to inspect | `undetermined: true`, `undetermined_checks` includes `trustline`, and the `X-Assay-Undetermined: true` header |
+| The holder does not hold the asset | Determined finding: no trustline exists, evidenced from `/accounts/{holder}` | Unchanged |
 | Horizon could not be reached for the holder | `undetermined: true`, with a `not retrievable:` evidence claim | As above |
 
 **`severity` never changes.** Severity is issuer-level and holder-independent
