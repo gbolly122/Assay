@@ -231,19 +231,19 @@ func (m *ConfusionMatrix) Print(precisionRecall bool) {
 // PrintTo writes the confusion matrix to w.
 func (m *ConfusionMatrix) PrintTo(w io.Writer, precisionRecall bool) {
 	_, _ = fmt.Fprintf(w, "confusion matrix (sample size: %d subjects, corpus %s)\n", m.SampleSize, m.Version)
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 	_, _ = fmt.Fprintln(w, "=== severity level agreement ===")
 	_, _ = fmt.Fprintf(w, "%-12s %-10s %-12s %-14s %s\n", "severity", "agreed", "disagreed", "undetermined", "sample_size")
 	for _, row := range m.SeverityRows {
 		_, _ = fmt.Fprintf(w, "%-12s %-10d %-12d %-14d %d\n", row.Severity, row.Agreed, row.Disagreed, row.Undetermined, row.SampleSize)
 	}
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 	_, _ = fmt.Fprintln(w, "=== check agreement ===")
 	_, _ = fmt.Fprintf(w, "%-18s %-10s %-12s %-14s %s\n", "check", "agreed", "disagreed", "undetermined", "sample_size")
 	for _, row := range m.CheckRows {
 		_, _ = fmt.Fprintf(w, "%-18s %-10d %-12d %-14d %d\n", row.Check, row.Agreed, row.Disagreed, row.Undetermined, row.SampleSize)
 	}
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 
 	if precisionRecall {
 		m.printPrecisionRecallCaveat(w)
@@ -256,7 +256,7 @@ func (m *ConfusionMatrix) printPrecisionRecallCaveat(w io.Writer) {
 	_, _ = fmt.Fprintf(w, "%d subjects. This sample size cannot support statistically\n", m.SampleSize)
 	_, _ = fmt.Fprintln(w, "meaningful rates. These figures are illustrative only and must not")
 	_, _ = fmt.Fprintln(w, "be cited as evidence of classifier accuracy.")
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 
 	totalAgreed := 0
 	totalDisagreed := 0
