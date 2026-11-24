@@ -2232,6 +2232,46 @@ fn interface_version_is_abi() {
     assert_eq!(INTERFACE_VERSION, 4);
 }
 
+/// A bump that is not recorded leaves a consumer holding `version() == N` with
+/// no way to learn what N changed. The rustdoc on `INTERFACE_VERSION` points at
+/// the doc's version history, so this test holds the two together: every
+/// version up to and including the constant must have a row there.
+#[test]
+fn interface_version_history_is_documented() {
+    const DOC: &str = include_str!("../../../../docs/contract-interface.md");
+    let after_heading = DOC
+        .split_once("### Version history")
+        .expect("docs/contract-interface.md has no \"### Version history\" section")
+        .1;
+    let section = after_heading
+        .split("\n### ")
+        .next()
+        .unwrap_or(after_heading);
+
+    // Version rows are the table rows whose first cell is the version number.
+    // Other tables in the section (the error-code table follows it) do not
+    // start with a numeric first cell, so they are ignored.
+    let mut documented: std::vec::Vec<u32> = std::vec::Vec::new();
+    for line in section.lines() {
+        let Some(cells) = line.strip_prefix("| ") else {
+            continue;
+        };
+        let Some((first, _)) = cells.split_once(" |") else {
+            continue;
+        };
+        if let Ok(version) = first.trim().parse::<u32>() {
+            documented.push(version);
+        }
+    }
+
+    for version in 1..=INTERFACE_VERSION {
+        assert!(
+            documented.contains(&version),
+            "INTERFACE_VERSION is {INTERFACE_VERSION}, but version {version} has no row in the version history in docs/contract-interface.md"
+        );
+    }
+}
+
 /// Results come back in the order the assets were asked for, and an asset that
 /// was never attested reads as `None` without failing the whole call.
 #[test]

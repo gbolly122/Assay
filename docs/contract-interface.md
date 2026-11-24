@@ -102,10 +102,23 @@ a wasm hash.
   safely ignore (a new `get_safety_many` does not break an existing
   `get_safety` caller), and documentation-only changes.
 
+### Version history
+
 Adding `version()` itself establishes version 1: the interface as of that
-build is version 1. Version 2 adds `cancel_admin_transfer` and the
-`cancel_admin` event. The constant is an ABI value and is parsed by the Go ABI
-drift test, so it cannot drift from the deployed interface without a red build.
+build is version 1. Every later bump is recorded here, one row per version.
+This table is the changelog the contract's rustdoc points at, and the
+`interface_version_history_is_documented` test fails if `INTERFACE_VERSION`
+names a version with no row.
+
+| Version | Change |
+| --- | --- |
+| 1 | `version()` established the interface. |
+| 2 | Adds `cancel_admin_transfer` and the `cancel_admin` event, and `Error::InvalidAsset` for an address that cannot name a SAC. |
+| 3 | Adds `preimage_version: u32` to the stored `Safety`, written by `attest` and `attest_many`, so a verifier can tell which encoding produced `evidence_hash`. |
+| 4 | Adds `Quorum::InvalidArguments`, so a malformed `quorum` call is no longer reported as `Quorum::Unavailable`. |
+
+The constant is an ABI value and is parsed by the Go ABI drift test, so it
+cannot drift from the deployed interface without a red build.
 
 | Error | Code | Returned by |
 | --- | --- | --- |

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -424,7 +423,8 @@ func verifyBundle(path string, asJSON bool, w io.Writer) (int, error) {
 }
 
 func runVerify(args []string) error {
-	fs := flag.NewFlagSet("verify", flag.ContinueOnError)
+	fs := newFlagSet("verify")
+	cache := cacheFlags(fs)
 	maxAge := fs.Int64("max-age", 0, "treat an attestation older than this many seconds as stale (0 disables the age check)")
 	asJSON := fs.Bool("json", false, "print the verdict as JSON for scripting")
 	bundlePath := fs.String("bundle", "",
@@ -481,7 +481,7 @@ func runVerify(args []string) error {
 	if *differentialEnabled {
 		differentialRPC = *rpcURL
 	}
-	scanner := scan.New()
+	scanner := scan.NewWithOptions(cache())
 	reader := newRegistryReader(*registryRPC, *contractID, *network)
 	res, verdict := verifyAsset(ctx, asset, *maxAge, time.Now(),
 		scanner.ScanWithSubject,

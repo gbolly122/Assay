@@ -88,10 +88,17 @@ pub const POLICY_MASK_FREEZE_INCLUSIVE: u32 = MECH_AUTH_REVOCABLE | MECH_CLAWBAC
 ///
 /// Bump this whenever the entrypoint set, the [`Safety`] or [`Attestation`]
 /// shapes, the error codes, or the event schema change. Additive read-only
-/// entrypoints do not require a bump; removing or renaming one does. Version 1
-/// established the interface with [`Self::version`]; version 2 adds
-/// [`Self::cancel_admin_transfer`] and the [`AdminTransferCancelled`] event.
-/// Version 4 adds [`Quorum::InvalidArguments`], so a miscalibrated
+/// entrypoints do not require a bump; removing or renaming one does. Each bump
+/// is recorded in `docs/contract-interface.md` ("Interface versioning"), and a
+/// test fails if the constant runs ahead of that history.
+///
+/// Version 1 established the interface with [`Self::version`]. Version 2 adds
+/// [`Self::cancel_admin_transfer`] and the [`AdminTransferCancelled`] event,
+/// plus [`Error::InvalidAsset`], which `attest` and `attest_many` return for an
+/// address that cannot name a SAC. Version 3 adds `preimage_version` to the
+/// stored [`Safety`], written by [`Self::attest`] and [`Self::attest_many`], so
+/// a verifier can tell which encoding produced its `evidence_hash`. Version 4
+/// adds [`Quorum::InvalidArguments`], so a miscalibrated
 /// [`SafetyRegistry::quorum`] call is no longer reported as
 /// [`Quorum::Unavailable`] (an outage). A `match` on [`Quorum`] that was
 /// exhaustive under version 3 no longer compiles, and a consumer decoding the
