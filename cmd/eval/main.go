@@ -61,7 +61,7 @@ func run(args []string, stdout io.Writer) error {
 		if err := writeRecord(*out, rec); err != nil {
 			return err
 		}
-		fmt.Fprintf(stdout, "recorded %d subjects under %s -> %s\n", len(rec.Subjects), rec.Version, *out)
+		_, _ = fmt.Fprintf(stdout, "recorded %d subjects under %s -> %s\n", len(rec.Subjects), rec.Version, *out)
 	}
 
 	if *compare != "" {
@@ -142,9 +142,9 @@ func readRecord(path string) (*eval.Record, error) {
 }
 
 func printDiff(w io.Writer, base, current *eval.Record, diff eval.Diff, baselinePath string) {
-	fmt.Fprintf(w, "eval compare: %s (%s) -> %s\n", base.Version, baselinePath, current.Version)
+	_, _ = fmt.Fprintf(w, "eval compare: %s (%s) -> %s\n", base.Version, baselinePath, current.Version)
 	if diff.Empty() {
-		fmt.Fprintln(w, "no movement: severity, mechanics and evidence are unchanged")
+		_, _ = fmt.Fprintln(w, "no movement: severity, mechanics and evidence are unchanged")
 		return
 	}
 
@@ -153,21 +153,21 @@ func printDiff(w io.Writer, base, current *eval.Record, diff eval.Diff, baseline
 	printMovements(w, "evidence", diff.EvidenceMovements)
 
 	if len(diff.Undetermined) > 0 {
-		fmt.Fprintln(w, "\nundetermined (excluded from movement counts, reported separately):")
+		_, _ = fmt.Fprintln(w, "\nundetermined (excluded from movement counts, reported separately):")
 		for _, dir := range diff.Undetermined {
-			fmt.Fprintf(w, "  %s\n", dir)
+			_, _ = fmt.Fprintf(w, "  %s\n", dir)
 		}
 	}
 	if len(diff.Added) > 0 {
-		fmt.Fprintln(w, "\nadded to the corpus:")
+		_, _ = fmt.Fprintln(w, "\nadded to the corpus:")
 		for _, dir := range diff.Added {
-			fmt.Fprintf(w, "  %s\n", dir)
+			_, _ = fmt.Fprintf(w, "  %s\n", dir)
 		}
 	}
 	if len(diff.Removed) > 0 {
-		fmt.Fprintln(w, "\nremoved from the corpus:")
+		_, _ = fmt.Fprintln(w, "\nremoved from the corpus:")
 		for _, dir := range diff.Removed {
-			fmt.Fprintf(w, "  %s\n", dir)
+			_, _ = fmt.Fprintf(w, "  %s\n", dir)
 		}
 	}
 }
@@ -176,8 +176,8 @@ func printMovements(w io.Writer, name string, moves []eval.Movement) {
 	if len(moves) == 0 {
 		return
 	}
-	fmt.Fprintf(w, "\n%s movements (%d):\n", name, len(moves))
+	_, _ = fmt.Fprintf(w, "\n%s movements (%d):\n", name, len(moves))
 	for _, m := range moves {
-		fmt.Fprintf(w, "  %s\t%s: %s -> %s\n", m.Dir, m.Field, m.Before, m.After)
+		_, _ = fmt.Fprintf(w, "  %s\t%s: %s -> %s\n", m.Dir, m.Field, m.Before, m.After)
 	}
 }
